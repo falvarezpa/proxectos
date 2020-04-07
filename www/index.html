@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+	  <style type="text/css"> 
+	#contenedor{margin:auto;text-align:center;margin-top:50px} 
+	input{width:200px} 
+   </style> 
+	
+    <title>Cifrador de Codigo</title>
+</head>
+
+<body> 
+<div id="contenedor"> 
+<H1>CIFRADO DE TEXTOS</h1>
+<input type="button" onClick="traducir()" value="Traducir a codigo cifrado">
+<input type="button" onClick="traducirm();" value="Traducir a castellano">
+<input type="button" onclick="vaciar1();" value="Borrar cuadro castellano">
+<input type="button" onclick="vaciar2();" value="Borrar cuadro de codigo cifrado">
+<br><br>
+<textarea id="caja1" cols="80" rows="10" title="Teclee su codigo traducir" placeholder="Teclee el codigo a cifrar" ></textarea><br> 
+<br> 
+<textarea id="caja2" cols="80" rows="10" placeholder="Teclea el codigo cifrado para descifrarlo"></textarea> <br>
+<br> 
+</div> 
+ 
+ <script src="cordova.js"></script>
+<script type="text/javascript"> 
+
+  var arrayletras="1234567890abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ áéíóú.,?:-!";     
+  var separador="@"; 
+  var secuencia=new Array(arrayletras.length);
+  var tope=3;
+  var distancia=180;
+  var rango=50
+  var relleno=['#','@','$','&'];
+  function mezcla(pos,lettra) {
+    var salida="";
+    do {
+     var rell1=parseInt(Math.random()*relleno.length);
+	 var rell2=parseInt(Math.random()*relleno.length);
+	 } while (rell1==rell2);
+     if (pos==0) {
+	   salida=lettra+relleno[rell1]+relleno[rell2];
+     } else if (pos==1) {
+	    salida=relleno[rell1]+lettra+relleno[rell2];
+     }	else {
+	     salida=relleno[rell1]+relleno[rell2]+lettra;
+     }	 
+	 return salida;
+   }
+   
+  function vaciar1() {
+
+   document.getElementById("caja1").value="";
+  }  
+  function vaciar2() {
+    document.getElementById("caja2").value="";
+  }
+  
+  function generador (letra) {
+    var pila=[];
+	var ascii=letra.charCodeAt(0);
+	ascii+=aleatdis;
+	var letran=String.fromCharCode(ascii);
+	for (var j=0;j<tope;j++) {
+	  var sek=mezcla(j,letran);
+	  pila.push(sek);
+	}
+	return pila;
+  }
+  function genera_secuencia() {
+    for (var i=0;i<arrayletras.length;i++) {	   
+	     var columna=generador(arrayletras[i]);
+	     secuencia[i]=columna;
+    }	
+  }
+  
+function rechazar(x)  
+   {
+    var lixo="";
+	for (var i=0;i<x.length;i++) {
+	  var posicion=relleno.indexOf(x[i]);
+	  if (posicion==-1) {
+	     lixo=x[i];
+	  }
+	}
+	return lixo;
+   }
+   
+function traducirm() {   
+   var cajam=document.getElementById("caja2").value;
+   if (cajam.length>0) {
+    var mimorse=[];
+	var j=0;
+    aleatdis=cajam[0].charCodeAt(0);
+    cajam=cajam.slice(1);
+    for (var i=0;i<cajam.length;i+=3) {
+      mimorse[j]=rechazar(cajam.slice(i,i+3));
+ 	 j++;
+    } 
+    var traduce="";
+    for (var i=0;i<mimorse.length;i++) {
+       var letrax=mimorse[i].charCodeAt(0)-aleatdis;
+       traduce+=String.fromCharCode(letrax);
+     }	 
+	 document.getElementById("caja1").value=traduce;
+	} else  {
+	   alert ("Tiene que teclear el mensaje a descifrar");
+   }
+  }
+  
+function traducir(){ 
+  
+    aleatdis=parseInt(Math.random()*rango+distancia);
+	genera_secuencia();
+    var variable=String.fromCharCode(aleatdis);
+    var caja1=document.getElementById("caja1").value;  
+    if (caja1.length>0)  {	
+       for(var j=0;j<caja1.length;j++){ 
+           var posicion=arrayletras.indexOf(caja1[j]);
+		   if (posicion==-1) {
+		     alert ("El caracter " + caja1[j]+ " no esta permitido para el cifrado ");
+		   }
+		   var seki=secuencia[posicion];
+		   var azaroso=parseInt(Math.random()*secuencia[posicion].length);
+		   
+		//   console.log(caja1[j],posicion,morse[posicion]);
+         variable+=secuencia[posicion][azaroso];
+           
+         
+        } 
+        variable=variable.slice(0,variable.length); 
+        document.getElementById("caja2").value=variable; 
+     
+      } else 
+	    {
+	     alert ("Tiene que teclear el mensaje a traducir");
+		 }
+    } 
+  
+ 
+ 
+</script> 
+ 
+ 
+</body> 
+
+</html>
